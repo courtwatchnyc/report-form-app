@@ -25,6 +25,8 @@ definitions:
       penalLaw:
         title: "Penal Law"
         type: string
+      topCharge:
+        $ref: '#/definitions/TopCharge'
       interpreterNeeded:
         title: "Is interpreter needed?"
         type: boolean
@@ -33,9 +35,11 @@ definitions:
         type: boolean
       accusedDemographics:
         $ref: '#/definitions/AccusedDemographics'
+      plea:
+        $ref: '#/definitions/PleaDiscussion'
+      caseResolution:
+        $ref: '#/definitions/CaseResolution'
 
-      charge:
-        $ref: '#/definitions/Charge'
     required:
     - borough
     - charge
@@ -46,22 +50,8 @@ definitions:
     - judge
     - penalLaw
     - watcherName
-    title: CourtWatchReport
-  Charge:
-    type: object
-    additionalProperties: false
-    properties:
-      type:
-        $ref: '#/definitions/Type'
-      notes:
-        type: string
-      plea:
-        $ref: '#/definitions/PleaDiscussion'
-    required:
-    - notes
     - plea
-    - type
-    title: Charge
+    title: CourtWatchReport
   AccusedDemographics:
     type: object
     additionalProperties: false
@@ -207,151 +197,157 @@ definitions:
                 type: number
                 exclusiveMinimum: 0
 
-  Resolution:
+  CaseResolution:
     type: object
     additionalProperties: false
     properties:
-      resolved:
+      isResolved:
         title: "Did the case resolve?"
         $ref: '#/definitions/YesNoNotSure'
     required:
-    - resolved
+    - isResolved
     title: Case Resolution
-  Type:
+    dependencies:
+      isResolved:
+        oneOf:
+          - required: ["type"]
+            properties:
+              isResolved:
+                enum:
+                  - "yes"
+              type:
+                title: "How?"
+                type: string
+                enum: ["Case dismissed", "Plea to"]
+      type:
+        oneOf:
+          - required: ["pleaTo"]
+            properties:
+              type:
+                enum:
+                  - Plea to
+              sentence:
+                $ref: '#/definitions/Sentence'
+              pleaTo:
+                $ref: '#/definitions/PleaTo'
+
+
+
+  TopCharge:
     type: object
-    additionalProperties: false
+    title: Top Charge
+    required: ["chargeKnown"]
     properties:
-      couldntHear:
-        type: boolean
-      notMentioned:
-        type: boolean
-      propertyCrime:
-        $ref: '#/definitions/PropertyCrime'
-      drugCrime:
-        $ref: '#/definitions/DrugCrime'
-      assault:
-        $ref: '#/definitions/Assault'
-      other:
-        $ref: '#/definitions/Other'
-      domesticViolence:
+      chargeKnown:
+        title: "Do you know the top charge?"
         type: string
-      felony:
-        type: string
-      additionalCharges:
-        type: string
-    required:
-    - additionalCharges
-    - assault
-    - couldntHear
-    - domesticViolence
-    - drugCrime
-    - felony
-    - notMentioned
-    - other
-    - propertyCrime
-    title: Type
-  Assault:
-    type: object
-    additionalProperties: false
-    properties:
-      aggravatedHarassment:
-        type: boolean
-      assault:
-        type: boolean
-      contempt:
-        type: boolean
-      forcibleTouching:
-        type: boolean
-      menacing:
-        type: boolean
-      other:
-        type: string
-    required:
-    - aggravatedHarassment
-    - assault
-    - contempt
-    - forcibleTouching
-    - menacing
-    - other
-    title: Assault
-  DrugCrime:
-    type: object
-    additionalProperties: false
-    properties:
-      takingWithTresspass:
-        type: boolean
-      marijuanaPosession:
-        type: boolean
-      marijuanaSale:
-        type: boolean
-      otherDrugPossession:
-        type: boolean
-      otherDrugSale:
-        type: boolean
-      syntheticMarijuana:
-        type: boolean
-      other:
-        type: string
-    required:
-    - marijuanaPosession
-    - marijuanaSale
-    - other
-    - otherDrugPossession
-    - otherDrugSale
-    - syntheticMarijuana
-    - takingWithTresspass
-    title: DrugCrime
-  Other:
-    type: object
-    additionalProperties: false
-    properties:
-      bailJumping:
-        type: boolean
-      bentMetrocard:
-        type: boolean
-      drivingWithoutLicense:
-        type: boolean
-      drivingWhileIntoxicated:
-        type: boolean
-      gravityKnifePosession:
-        type: boolean
-      prostitutionRelated:
-        type: boolean
-      tresspass:
-        type: boolean
-      other:
-        type: string
-    required:
-    - bailJumping
-    - bentMetrocard
-    - drivingWhileIntoxicated
-    - drivingWithoutLicense
-    - gravityKnifePosession
-    - other
-    - prostitutionRelated
-    - tresspass
-    title: Other
-  PropertyCrime:
-    type: object
-    additionalProperties: false
-    properties:
-      burglary:
-        type: boolean
-      petitLarceny:
-        type: boolean
-      robbery:
-        type: boolean
-      theftOfServices:
-        type: boolean
-      other:
-        type: string
-    required:
-    - burglary
-    - other
-    - petitLarceny
-    - robbery
-    - theftOfServices
-    title: PropertyCrime
+        default: "Yes"
+        enum:
+          - "Yes"
+          - I Couldn't hear it
+          - Not mentioned
+      # sentence:
+      #   $ref: '#/definitions/Sentence'
+    # Only require crime information if it's known
+    dependencies:
+      chargeKnown:
+        oneOf:
+          - required: ["type"]
+            properties:
+              chargeKnown:
+                enum:
+                  - "Yes"
+              type:
+                title: "Charge type"
+                type: string
+                enum: ["Property crime", "Drug crime", "Assault and related", "Other"]
+              domesticViolence:
+                title: "Domestic Violence"
+                $ref: '#/definitions/YesNoNotSure'
+              felony:
+                title: "Felony (mention of Grand Jury"
+                $ref: '#/definitions/YesNoNotSure'
+              additionalCharges:
+                title: "Additional Charges"
+                $ref: '#/definitions/YesNoNotSure'
+              notes:
+                title: "Notes"
+                type: string
+      crime:
+        oneOf:
+          - required: ["otherCrime"]
+            properties:
+              crime:
+                enum:
+                  - Other
+              otherCrime:
+                title: "Other"
+                type: string
+
+      type:
+         oneOf:
+          - required: ["crime"]
+            properties:
+              type:
+                enum:
+                  - "Property crime"
+              crime:
+                title: "Property Crime"
+                type: string
+                enum:
+                  - "Burglary (taking w/trespass)"
+                  - "Petit Larceny (shoplifting)"
+                  - "Robbery (taking by force)"
+                  - "Theft of services (turnstile jump) PL 165.15"
+                  - "Other"
+          - required: ["crime"]
+            properties:
+              type:
+                enum:
+                  - "Drug crime"
+              crime:
+                title: "Drug Crime"
+                type: string
+                enum:
+                  - "Drug (non marijuana) posesssion"
+                  - "Drug (non marijuana) sale"
+                  - "Marijuana posession"
+                  - "Marijuana sale"
+                  - "K2/Synthetic cannabanoid"
+                  - "Other"
+          - required: ["crime"]
+            properties:
+              type:
+                enum:
+                  - "Assault and related"
+              crime:
+                title: "Assault and related"
+                type: string
+                enum:
+                  - Aggravated Harassment
+                  - Assault
+                  - Contempt (violating an OOP)
+                  - Forcible Touching
+                  - Menacing
+                  - "Other"
+          - required: ["crime"]
+            properties:
+              type:
+                enum:
+                  - "Other"
+              crime:
+                title: "Other"
+                type: string
+                enum:
+                  - Bail Jumping PL 215.55
+                  - Bent metrocard ("Forged Instrument") PL 170.20
+                  - Driving w/o license VTL 511
+                  - Driving while intoxicated
+                  - Gravity knife possession PL 265.01
+                  - Prostitution-related charge PL 230.00 - 230.40
+                  - Trespass PL 140.10/.0
+                  - "Other"
+
   YesNoNotSure:
     type: string
     enum: ["yes", "no", "not sure"]
