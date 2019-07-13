@@ -1,0 +1,357 @@
+$schema: http://json-schema.org/draft-07/schema#
+$ref: '#/definitions/CourtWatchReport'
+definitions:
+  CourtWatchReport:
+    type: object
+    additionalProperties: false
+    properties:
+      date:
+        title: "Court Date"
+        type: string
+        format: date
+      watcherName:
+        title: Your Name
+        type: string
+      docketNumber:
+        title: Docket Number
+        type: string
+      borough:
+        type: string
+        title: "Borough"
+        enum: ["Brooklyn", "Bronx", "Manhattan", "Queens", "Staten Island"]
+      judge:
+        title: "Judge"
+        type: string
+      penalLaw:
+        title: "Penal Law"
+        type: string
+      interpreterNeeded:
+        title: "Is interpreter needed?"
+        type: boolean
+      interpreterPresent:
+        title: "Is interpreter present?"
+        type: boolean
+      accusedDemographics:
+        $ref: '#/definitions/AccusedDemographics'
+
+      charge:
+        $ref: '#/definitions/Charge'
+    required:
+    - borough
+    - charge
+    - date
+    - docketNumber
+    - interpreterNeeded
+    - interpreterPresent
+    - judge
+    - penalLaw
+    - watcherName
+    title: CourtWatchReport
+  Charge:
+    type: object
+    additionalProperties: false
+    properties:
+      type:
+        $ref: '#/definitions/Type'
+      notes:
+        type: string
+      plea:
+        $ref: '#/definitions/PleaDiscussion'
+    required:
+    - notes
+    - plea
+    - type
+    title: Charge
+  AccusedDemographics:
+    type: object
+    additionalProperties: false
+    properties:
+      gender:
+        title: "Gender"
+        type: string
+        enum: ["Male", "Female", "Gender non-conforming", "Transgender male", "Transgender female"]
+      race:
+        title: "Race"
+        type: string
+        enum: ["Black", "White", "Latino", "Native American", "South Asian", "East Asian"]
+      ageRange:
+        title: Age
+        type: string
+        enum: ["16-24", "25-34", "35-44", "45-54", "55+"]
+    required:
+    - age
+    - gender
+    - race
+    title: Demographics of the Accused
+
+  PleaDiscussion:
+    type: object
+    title: Prosecution
+    additionalProperties: false
+    properties:
+      prosecutionOffer:
+        $ref: '#/definitions/ProsecutionOffer'
+  ProsecutionOffer:
+    type: object
+    title: Prosecution
+    properties:
+      offer:
+        title: "What does the DA say?"
+        type: string
+        enum:
+          - Dismissal
+          - No offer or recommendation
+          - Offering or recommending a plea
+      # sentence:
+      #   $ref: '#/definitions/Sentence'
+    dependencies:
+      offer:
+        oneOf:
+          - required: ["pleaTo"]
+            properties:
+              offer:
+                enum:
+                  - Offering or recommending a plea
+              sentence:
+                $ref: '#/definitions/Sentence'
+              pleaTo:
+                $ref: '#/definitions/PleaTo'
+
+
+
+    required:
+    - offer
+  PleaTo:
+    type: object
+    required: ["pleaTo"]
+    properties:
+      pleaTo:
+        title: "Plea To"
+        type: string
+        enum:
+          - Top Charge (Plea to the charge)
+          - Disorderly Conduct violation
+          - Unlicensed Driving(509) violation
+          - ACD or marijuana ACD
+          - Other
+    dependencies:
+      pleaTo:
+        oneOf:
+          - required: ["otherPlea"]
+            properties:
+              pleaTo:
+                enum:
+                  - Other
+              otherPlea:
+                title: "Other Plea"
+                type: string
+
+  Sentence:
+    type: object
+    required: ["type"]
+    properties:
+      type:
+        title: "Sentence"
+        type: string
+        enum:
+          - Time served
+          - Jail time
+          - Community service
+          - Program
+          - Fine
+          - Other
+    dependencies:
+      type:
+        oneOf:
+          - required: ["otherSentence"]
+            properties:
+              type:
+                enum:
+                  - Other
+              otherSentence:
+                title: "Other Sentence"
+                type: string
+          - required: ["jailDays"]
+            properties:
+              type:
+                enum:
+                  - Jail time
+              jailDays:
+                title: "Days in jail"
+                type: number
+                exclusiveMinimum: 0
+          - required: ["communityServiceDays"]
+            properties:
+              type:
+                enum:
+                  - Community service
+              communityServiceDays:
+                title: "Days of Community Service"
+                type: number
+                exclusiveMinimum: 0
+          - required: ["programName"]
+            properties:
+              type:
+                enum:
+                  - Program
+              programName:
+                title: "Name of Program"
+                type: string
+          - required: ["fineAmount"]
+            properties:
+              type:
+                enum:
+                  - Fine
+              fineAmount:
+                title: "Fine Amount ($)"
+                type: number
+                exclusiveMinimum: 0
+
+  Resolution:
+    type: object
+    additionalProperties: false
+    properties:
+      resolved:
+        title: "Did the case resolve?"
+        $ref: '#/definitions/YesNoNotSure'
+    required:
+    - resolved
+    title: Case Resolution
+  Type:
+    type: object
+    additionalProperties: false
+    properties:
+      couldntHear:
+        type: boolean
+      notMentioned:
+        type: boolean
+      propertyCrime:
+        $ref: '#/definitions/PropertyCrime'
+      drugCrime:
+        $ref: '#/definitions/DrugCrime'
+      assault:
+        $ref: '#/definitions/Assault'
+      other:
+        $ref: '#/definitions/Other'
+      domesticViolence:
+        type: string
+      felony:
+        type: string
+      additionalCharges:
+        type: string
+    required:
+    - additionalCharges
+    - assault
+    - couldntHear
+    - domesticViolence
+    - drugCrime
+    - felony
+    - notMentioned
+    - other
+    - propertyCrime
+    title: Type
+  Assault:
+    type: object
+    additionalProperties: false
+    properties:
+      aggravatedHarassment:
+        type: boolean
+      assault:
+        type: boolean
+      contempt:
+        type: boolean
+      forcibleTouching:
+        type: boolean
+      menacing:
+        type: boolean
+      other:
+        type: string
+    required:
+    - aggravatedHarassment
+    - assault
+    - contempt
+    - forcibleTouching
+    - menacing
+    - other
+    title: Assault
+  DrugCrime:
+    type: object
+    additionalProperties: false
+    properties:
+      takingWithTresspass:
+        type: boolean
+      marijuanaPosession:
+        type: boolean
+      marijuanaSale:
+        type: boolean
+      otherDrugPossession:
+        type: boolean
+      otherDrugSale:
+        type: boolean
+      syntheticMarijuana:
+        type: boolean
+      other:
+        type: string
+    required:
+    - marijuanaPosession
+    - marijuanaSale
+    - other
+    - otherDrugPossession
+    - otherDrugSale
+    - syntheticMarijuana
+    - takingWithTresspass
+    title: DrugCrime
+  Other:
+    type: object
+    additionalProperties: false
+    properties:
+      bailJumping:
+        type: boolean
+      bentMetrocard:
+        type: boolean
+      drivingWithoutLicense:
+        type: boolean
+      drivingWhileIntoxicated:
+        type: boolean
+      gravityKnifePosession:
+        type: boolean
+      prostitutionRelated:
+        type: boolean
+      tresspass:
+        type: boolean
+      other:
+        type: string
+    required:
+    - bailJumping
+    - bentMetrocard
+    - drivingWhileIntoxicated
+    - drivingWithoutLicense
+    - gravityKnifePosession
+    - other
+    - prostitutionRelated
+    - tresspass
+    title: Other
+  PropertyCrime:
+    type: object
+    additionalProperties: false
+    properties:
+      burglary:
+        type: boolean
+      petitLarceny:
+        type: boolean
+      robbery:
+        type: boolean
+      theftOfServices:
+        type: boolean
+      other:
+        type: string
+    required:
+    - burglary
+    - other
+    - petitLarceny
+    - robbery
+    - theftOfServices
+    title: PropertyCrime
+  YesNoNotSure:
+    type: string
+    enum: ["yes", "no", "not sure"]
