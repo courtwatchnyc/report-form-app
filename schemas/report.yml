@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$ref: '#/definitions/CourtWatchReport'
+$ref: "#/definitions/CourtWatchReport"
 definitions:
   CourtWatchReport:
     type: object
@@ -26,7 +26,7 @@ definitions:
         title: "Penal Law"
         type: string
       topCharge:
-        $ref: '#/definitions/TopCharge'
+        $ref: "#/definitions/TopCharge"
       interpreterNeeded:
         title: "Is interpreter needed?"
         type: boolean
@@ -34,23 +34,23 @@ definitions:
         title: "Is interpreter present?"
         type: boolean
       accusedDemographics:
-        $ref: '#/definitions/AccusedDemographics'
+        $ref: "#/definitions/AccusedDemographics"
       plea:
-        $ref: '#/definitions/PleaDiscussion'
+        $ref: "#/definitions/PleaDiscussion"
       caseResolution:
-        $ref: '#/definitions/CaseResolution'
+        $ref: "#/definitions/CaseResolution"
 
     required:
-    - borough
-    - charge
-    - date
-    - docketNumber
-    - interpreterNeeded
-    - interpreterPresent
-    - judge
-    - penalLaw
-    - watcherName
-    - plea
+      - borough
+      - charge
+      - date
+      - docketNumber
+      - interpreterNeeded
+      - interpreterPresent
+      - judge
+      - penalLaw
+      - watcherName
+      - plea
     title: CourtWatchReport
   AccusedDemographics:
     type: object
@@ -59,19 +59,34 @@ definitions:
       gender:
         title: "Gender"
         type: string
-        enum: ["Male", "Female", "Gender non-conforming", "Transgender male", "Transgender female"]
+        enum:
+          [
+            "Male",
+            "Female",
+            "Gender non-conforming",
+            "Transgender male",
+            "Transgender female",
+          ]
       race:
         title: "Race"
         type: string
-        enum: ["Black", "White", "Latino", "Native American", "South Asian", "East Asian"]
+        enum:
+          [
+            "Black",
+            "White",
+            "Latino",
+            "Native American",
+            "South Asian",
+            "East Asian",
+          ]
       ageRange:
         title: Age
         type: string
         enum: ["16-24", "25-34", "35-44", "45-54", "55+"]
     required:
-    - age
-    - gender
-    - race
+      - age
+      - gender
+      - race
     title: Demographics of the Accused
 
   PleaDiscussion:
@@ -80,7 +95,7 @@ definitions:
     additionalProperties: false
     properties:
       prosecutionOffer:
-        $ref: '#/definitions/ProsecutionOffer'
+        $ref: "#/definitions/ProsecutionOffer"
   ProsecutionOffer:
     type: object
     title: Prosecution
@@ -103,14 +118,12 @@ definitions:
                 enum:
                   - Offering or recommending a plea
               sentence:
-                $ref: '#/definitions/Sentence'
+                $ref: "#/definitions/Sentence"
               pleaTo:
-                $ref: '#/definitions/PleaTo'
-
-
+                $ref: "#/definitions/PleaTo"
 
     required:
-    - offer
+      - offer
   PleaTo:
     type: object
     required: ["pleaTo"]
@@ -203,9 +216,9 @@ definitions:
     properties:
       isResolved:
         title: "Did the case resolve?"
-        $ref: '#/definitions/YesNoNotSure'
+        $ref: "#/definitions/YesNoNotSure"
     required:
-    - isResolved
+      - isResolved
     title: Case Resolution
     dependencies:
       isResolved:
@@ -227,11 +240,9 @@ definitions:
                 enum:
                   - Plea to
               sentence:
-                $ref: '#/definitions/Sentence'
+                $ref: "#/definitions/Sentence"
               pleaTo:
-                $ref: '#/definitions/PleaTo'
-
-
+                $ref: "#/definitions/PleaTo"
 
   TopCharge:
     type: object
@@ -260,16 +271,22 @@ definitions:
               type:
                 title: "Charge type"
                 type: string
-                enum: ["Property crime", "Drug crime", "Assault and related", "Other"]
+                enum:
+                  [
+                    "Property crime",
+                    "Drug crime",
+                    "Assault and related",
+                    "Other",
+                  ]
               domesticViolence:
                 title: "Domestic Violence"
-                $ref: '#/definitions/YesNoNotSure'
+                $ref: "#/definitions/YesNoNotSure"
               felony:
                 title: "Felony (mention of Grand Jury"
-                $ref: '#/definitions/YesNoNotSure'
+                $ref: "#/definitions/YesNoNotSure"
               additionalCharges:
                 title: "Additional Charges"
-                $ref: '#/definitions/YesNoNotSure'
+                $ref: "#/definitions/YesNoNotSure"
               notes:
                 title: "Notes"
                 type: string
@@ -285,7 +302,7 @@ definitions:
                 type: string
 
       type:
-         oneOf:
+        oneOf:
           - required: ["crime"]
             properties:
               type:

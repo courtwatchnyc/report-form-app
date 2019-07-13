@@ -1,8 +1,8 @@
-import * as React from 'react'
-import { NextPage } from 'next'
+import * as React from "react"
+import { NextPage } from "next"
 
-import Layout from '../components/Layout'
-import ReportForm from "../components/ReportForm";
+import Layout from "../components/Layout"
+import ReportForm from "../components/ReportForm"
 
 const IndexPage: NextPage = () => {
   return (
